@@ -1,0 +1,4 @@
+com.meizu.cloud 100004
+com.meizu.account 100002
+com.meizu.flyme.service.find 100003
+com.meizu.notepaper 100027
