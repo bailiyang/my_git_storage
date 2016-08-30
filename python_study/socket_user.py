@@ -8,5 +8,5 @@ s.connect(('127.0.0.1', 9999))
 for data in [b'Michael', b'Tracy', b'Sarah']:
     s.send(data)
     print(s.recv(1024).decode('utf-8'))
-    s.send(b'exit')
+s.send('server_stop')
 s.close()
