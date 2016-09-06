@@ -3,108 +3,193 @@
 
 import socket,time,os,sys,commands
 import threading,subprocess,logging
-import json
+from kazoo.client import KazooClient 
+
+logging.basicConfig(level=logging.DEBUG,  
+        format='%(asctime)s %(name)s [%(filename)s] [%(funcName)s]:(%(lineno)d) %(message)s',  
+        datefmt='[%a %d %b %Y %H:%M:%S]')
+
+def zk_init(zk_node, zk_path = '172.16.200.239:2181,172.16.200.233:2181,172.16.200.234:2181'):
+    #初始化zk节点
+    zk_cli = KazooClient(hosts = zk_path)
+    try:
+        zk_cli.start()
+    except:
+        logging.error('zk Init error, can not connect %s' %(str(zk_path)))
+        return -1
+    
+    try:
+        zk_cli.get('/nebula/log_asserter')
+    except:
+        logging.warn('can not find log_asserter zk path, creat it')
+        zk_cli.ensure_path('/nebula/log_asserter')
+
+    try:
+        zk_cli.create('/nebula/log_asserter/' + str(zk_node), '1', ephemeral=True)
+    except:
+        if zk_cli.get('/nebula/log_asserter/' + str(zk_node)):
+            return 0
+        else:
+            logging.error('create zk_node error, can not create node %s' %(str(zk_node)))
+            return -1
+    return 0
+
+def get_ip_address(ip):
+    #通过ip关键字获取本机ip地址，找不到返回-1
+    (status, output) = commands.getstatusoutput('ifconfig | grep inet | awk \'{print $2}\' | cut -d : -f 2')
+    ip_list = str(output).split()
+    for st in ip_list:
+        if ip in st:
+            return st
+    return -1
 
 def server_init(host = '127.0.0.1', port = 9999):
+    #开启TCP服务
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    socket.setdefaulttimeout(20)
+
     server.bind((host, port))
     server.listen(1)
     while True:
+        #服务启动，循环接收连接
         connection, address = server.accept()
-        print 'Connection by', address
-        connection.send('welcome')
+        logging.info("recv connection from %s" %(str(address)))
         while True:
+            #连接启动，循环接收连接的信息并处理
             data = connection.recv(1024)
             if data == 'server_restart':
+                connection.send('%s:%s restart\\end' %(str(host), str(port)))
                 connection.close()
                 server.close()
-                print 'restart server by', address
-                return 1
-            if data == 'server_stop':
-                connection.close()
-                server.close()
-                print 'close server by', address
+                logging.warn("restart server by %s" %(str(address)))
+                time.sleep(10)
                 return 0
+
+            if data == 'server_stop':
+                connection.send('%s:%s stop\\end' %(str(host), str(port)))
+                connection.close()
+                server.close()
+                logging.warn("close server by %s" %(str(address)))
+                return -1
+
             if data == 'exit':
-                print 'close connection by', address
+                connection.send('%s:%s exit\\end' %(str(host), str(port)))
+                logging.info("address %s connection close" %(str(address)))
                 break
-            connection.send('your send is %s' % (data))
+
+            if 'log_init' in data:
+                logging.info('start Init log')
+                data_split = str(data).split(',')
+                if Init_log(data_split[1], data_split[2]):
+                    connection.send('Init log error\\end')
+                else:
+                    connection.send('Init log OK\\end')
+                    
+            if 'log_read' in data:
+                logging.info('start read log')
+                data_split = str(data).split(',')
+                if len(data_split) > 2:
+                    status = read_log(data_split[1],data_split[2])
+                else:
+                    status = read_log(data_split[1])
+                    
+                if status:
+                    connection.send('read log error\\end')
+                else:
+                    connection.send('read log OK\\end')
+
+            if 'log_send' in data:
+                logging.info('start send log')
+                try:
+                    for st in get_send_log():
+                        connection.send(st)
+                    connection.send('\\end')
+                except:
+                    logging.error('send log error\\end')
+                    connection.send('send log error')
+                    
         connection.close()
 
-def Init_log(server_name, log_name, server_file = '/usr/local/service/'):
+def Init_log(log_name, server_file = '/usr/local/service/'):
     global file_read, file_write, file_name
     file_name = log_name
 
     #检查指定log是否存在指定目录中
-    if server_name:
-        server_file = server_file + str(server_name) + '/logs/'
-    else:
-        server_file = './'
-
     sentences = 'ls %s | grep %s' %(server_file, log_name)
-    (status, output) = commands.getstatusoutput(sentences)
-    if status:
-        print 'Init log error, can\'t do sentences %s' %(sentences)
+    try:
+        (status, output) = commands.getstatusoutput(sentences)
+    except:
+        logging.error('Init log error, can\'t do sentences %s' %(str(sentences)))
         return -1
+
     if not log_name in output:
-        print 'Init log error, can\'t find %s in file %s' %(log_name, server_file)
+        logging.error('Init log error, can\'t find %s in file %s' %(str(log_name), str(server_file)))
         return -1
     
     #开启log准备读写
     file_write = open(str(log_name), 'w')
     file_read = open(server_file + log_name, 'r')
-    file_read.seek(0, 2)
+    #file_read.seek(0, 2)
+    return 0
 
-def read_log(imei, time_limit):
+def read_log(grep_key, time_limit = 5):
     global file_read, file_write
 
     #先读入一行，确定起始时间
-    file_content = file_read.readline()
-    time_start = get_time(file_content)
-    flag = True
+    time_start = get_time()
 
     #循环读入，读到文件结尾、或读time_limit秒的log
-    while (file_content or flag):
-        if (get_time(file_content) - time_start > time_limit):
-            flag = False
-        if str(imei) in file_content:
-            file_write.write(file_content)
-        file_content = file_read.readline()
+    while True:
+        time_now = get_time()
+        if (int(time_now) - int(time_start)) > int(time_limit):
+            break
 
+        try:
+            content = file_read.readline()
+        except:
+            logging.error('read log error')
+            return -1
+        if content == '':
+            break
+        if str(grep_key) in content:
+            try:
+                file_write.write(content)
+            except:
+                logging.error('write log error')
+                return -1
+
+    logging.info('read&write log OK')
     file_read.close()
     file_write.close()
+    return 0
 
-def get_time(st_time):
-    st = str(st_time)[str(st_time).index(' ') + 1:str(st_time).index('.')]
-    time = st[-2:]
-    return int(time)
+def get_time():
+    #获取当前系统时间戳
+    sentences = str('date +%s')
+    (status, output) = commands.getstatusoutput(sentences)
+    try:
+        time = int(output)
+    except:
+        logging.error('get time from date error, output is %s' %(str(output)))
+        return -1
+    return time
 
-def push(imei, *s):
-    #循环加入指定的参数
-    sentences = '../auto_test/test --imei %s ' %(imei)
-    for i in s:
-        sentences = sentences + str(i) + ' '
-    output = subprocess.check_output(sentences, shell=True)
-    log_write = open('push.log', 'w')
-    log_write.writelines(output)
-    log_write.close()
-    return output
-
-def assert_log(log):
+def get_send_log():
+    #获取需要发送的log
     global file_name
-    #读入本地文件，循环断言log
-    log_file = open(file_name,'r')
-    log_list = log_file.readlines()
-    for log_line in log_list:
-        if log in log_line:
-            log_file.close()
-            return True
-    return False
-
+    file_write = open(str(file_name), 'r')
+    st = file_write.readlines()
+    file_write.close()
+    return st
 
 if __name__ == "__main__":
-    while server_init():
-        time.sleep(5)
-        server_init()
-
+    while True:        
+        ip = get_ip_address('192')
+        if ip == -1:
+            break
+        if zk_init(str(ip)):
+            break
+        if server_init(ip):
+            break
+            time.sleep(1)
