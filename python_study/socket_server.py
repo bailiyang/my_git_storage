@@ -9,39 +9,43 @@ logging.basicConfig(level=logging.DEBUG,
         format='%(asctime)s %(name)s [%(filename)s] [%(funcName)s]:(%(lineno)d) %(message)s',  
         datefmt='[%a %d %b %Y %H:%M:%S]')
 
-def zk_init(zk_node, zk_path = '172.16.200.239:2181,172.16.200.233:2181,172.16.200.234:2181'):
+def zk_init(server_address, zk_node, zk_address = '172.16.200.239:2181,172.16.200.233:2181,172.16.200.234:2181'):
     #初始化zk节点
-    zk_cli = KazooClient(hosts = zk_path)
+    zk_cli = KazooClient(hosts = zk_address)
     try:
         zk_cli.start()
     except:
-        logging.error('zk Init error, can not connect %s' %(str(zk_path)))
+        logging.error('zk Init error, can not connect %s' %(str(zk_address)))
         return -1
     
     try:
-        zk_cli.get('/nebula/log_asserter')
+        zk_cli.get(zk_node)
     except:
-        logging.warn('can not find log_asserter zk path, creat it')
-        zk_cli.ensure_path('/nebula/log_asserter')
+        logging.warn('can not find zk path %s, creat it' %(str(zk_node)))
+        zk_cli.ensure_path(zk_node)
 
+    if zk_node[-1] != '/':
+        zk_node += '/'
+        
     try:
-        zk_cli.create('/nebula/log_asserter/' + str(zk_node), '1', ephemeral=True)
+        zk_cli.create(zk_node + server_address, '1', ephemeral=True)
     except:
-        if zk_cli.get('/nebula/log_asserter/' + str(zk_node)):
+        if zk_cli.get(zk_node + server_address):
             return 0
         else:
-            logging.error('create zk_node error, can not create node %s' %(str(zk_node)))
+            logging.error('create zk_node error, can not create node %s' %(str(zk_node) + str(zk_address)))
             return -1
     return 0
 
-def get_ip_address(ip):
-    #通过ip关键字获取本机ip地址，找不到返回-1
+def get_ip_address(ip = '.'):
+    #通过ip关键字获取本机ip地址，找不到返回第一个获取到的ip
     (status, output) = commands.getstatusoutput('ifconfig | grep inet | awk \'{print $2}\' | cut -d : -f 2')
     ip_list = str(output).split()
+    print ip_list
     for st in ip_list:
         if ip in st:
             return st
-    return -1
+    return ip_list[1]
 
 def server_init(host = '127.0.0.1', port = 9999):
     #开启TCP服务
@@ -188,7 +192,7 @@ if __name__ == "__main__":
         ip = get_ip_address('192')
         if ip == -1:
             break
-        if zk_init(str(ip)):
+        if zk_init(str(ip) + ':9999', zk_node = '/nebula/log_asserter/mpush'):
             break
         if server_init(ip):
             break
