@@ -2,14 +2,14 @@
 #-*- coding:utf-8 -*-
 
 import socket,time,os,sys,commands
-import threading,subprocess,logging
+import logging,urlparse
 from kazoo.client import KazooClient 
 
 logging.basicConfig(level=logging.DEBUG,  
         format='%(asctime)s %(name)s [%(filename)s] [%(funcName)s]:(%(lineno)d) %(message)s',  
         datefmt='[%a %d %b %Y %H:%M:%S]')
 
-def zk_init(server_address, zk_node, zk_address = '172.16.200.239:2181,172.16.200.233:2181,172.16.200.234:2181'):
+def zk_init(server_address, zk_node, zk_address = ''):
     #初始化zk节点
     zk_cli = KazooClient(hosts = zk_address)
     try:
@@ -41,11 +41,11 @@ def get_ip_address(ip = '.'):
     #通过ip关键字获取本机ip地址，找不到返回第一个获取到的ip
     (status, output) = commands.getstatusoutput('ifconfig | grep inet | awk \'{print $2}\' | cut -d : -f 2')
     ip_list = str(output).split()
-    print ip_list
+    logging.info('ip list is %s' %(str(ip_list)))
     for st in ip_list:
         if ip in st:
             return st
-    return ip_list[1]
+    return ip_list[0]
 
 def server_init(host = '127.0.0.1', port = 9999):
     #开启TCP服务
@@ -61,6 +61,7 @@ def server_init(host = '127.0.0.1', port = 9999):
         logging.info("recv connection from %s" %(str(address)))
         while True:
             #连接启动，循环接收连接的信息并处理
+            #logging.info('recv')
             data = connection.recv(1024)
             if data == 'server_restart':
                 connection.send('%s:%s restart\\end' %(str(host), str(port)))
@@ -79,16 +80,20 @@ def server_init(host = '127.0.0.1', port = 9999):
 
             if data == 'exit':
                 connection.send('%s:%s exit\\end' %(str(host), str(port)))
+                connection.close()
                 logging.info("address %s connection close" %(str(address)))
                 break
 
             if 'log_init' in data:
-                logging.info('start Init log')
                 data_split = str(data).split(',')
-                if Init_log(data_split[1], data_split[2]):
+                logging.info('start Init log by %s' %(str(address)))
+                if Init_log(data_split[2], data_split[1]):
                     connection.send('Init log error\\end')
+                    break
                 else:
                     connection.send('Init log OK\\end')
+                    logging.info('Init log OK')
+                continue
                     
             if 'log_read' in data:
                 logging.info('start read log')
@@ -102,6 +107,7 @@ def server_init(host = '127.0.0.1', port = 9999):
                     connection.send('read log error\\end')
                 else:
                     connection.send('read log OK\\end')
+                continue
 
             if 'log_send' in data:
                 logging.info('start send log')
@@ -112,7 +118,8 @@ def server_init(host = '127.0.0.1', port = 9999):
                 except:
                     logging.error('send log error\\end')
                     connection.send('send log error')
-                    
+                continue
+   
         connection.close()
 
 def Init_log(log_name, server_file = '/usr/local/service/'):
@@ -135,6 +142,7 @@ def Init_log(log_name, server_file = '/usr/local/service/'):
     file_write = open(str(log_name), 'w')
     file_read = open(server_file + log_name, 'r')
     #file_read.seek(0, 2)
+    logging.info('start log assert, file_read=%s' %(server_file + log_name))
     return 0
 
 def read_log(grep_key, time_limit = 5):
@@ -163,7 +171,7 @@ def read_log(grep_key, time_limit = 5):
                 logging.error('write log error')
                 return -1
 
-    logging.info('read&write log OK')
+    logging.info('read&write log OK, file_write=%s' %(file_name))
     file_read.close()
     file_write.close()
     return 0
