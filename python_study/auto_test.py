@@ -1,7 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: auto_test.py
+#              Author: bailiyang@meizu.com
+#              Create: 2016-11-24 17:41:08
+#       Last Modified: 2016-11-24 17:41:25
+#
+#--------------------------------------------------
 
-import os,sys,time
 import commands
 import subprocess
 import os,logging

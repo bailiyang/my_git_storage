@@ -1,5 +1,13 @@
 #!/usr/bin/python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: cross_day_push_test.py
+#              Author: bailiyang@meizu.com
+#              Create: 2016-11-24 17:40:52
+#       Last Modified: 2016-11-24 17:41:01
+#
+#--------------------------------------------------
 
 import time,commands,sys,json,random
 import logging
