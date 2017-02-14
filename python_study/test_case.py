@@ -1,5 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: test_case.py
+#              Author: bailiyang@meizu.com
+#              Create: 2017-02-13 05:03:38
+#       Last Modified: 2017-02-13 05:03:41
+#
+#--------------------------------------------------
 
 import sys
 sys.path.append("..")

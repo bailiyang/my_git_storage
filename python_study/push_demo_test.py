@@ -1,5 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: push_demo_test.py
+#              Author: bailiyang@meizu.com
+#              Create: 2017-02-13 05:03:28
+#       Last Modified: 2017-02-13 05:03:30
+#
+#--------------------------------------------------
 
 import sys,time,getopt
 import urllib, urllib2, hashlib

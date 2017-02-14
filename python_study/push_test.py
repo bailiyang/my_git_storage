@@ -1,5 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: push_test.py
+#              Author: bailiyang@meizu.com
+#              Create: 2017-02-13 05:03:32
+#       Last Modified: 2017-02-13 05:03:32
+#
+#--------------------------------------------------
 
 import sys,time,getopt
 import urllib, urllib2, hashlib

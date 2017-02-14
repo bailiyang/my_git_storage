@@ -1,5 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: socket_server.py
+#              Author: bailiyang@meizu.com
+#              Create: 2017-02-13 05:03:35
+#       Last Modified: 2017-02-13 05:03:35
+#
+#--------------------------------------------------
 
 import socket,time,os,sys,commands
 import logging,urlparse

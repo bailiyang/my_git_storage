@@ -1,5 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #-*- coding:utf-8 -*-
+#--------------------------------------------------
+#
+#            Filename: socket_user.py
+#              Author: bailiyang@meizu.com
+#              Create: 2017-02-13 05:03:36
+#       Last Modified: 2017-02-13 05:03:36
+#
+#--------------------------------------------------
 
 import socket,time,os,sys,commands,threading
 import logging
