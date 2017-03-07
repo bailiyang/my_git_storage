@@ -4,12 +4,16 @@
 #
 #            Filename: auto_test.py
 #              Author: bailiyang@meizu.com
+<<<<<<< HEAD
 #              Create: 2017-02-13 05:03:14
 #       Last Modified: 2017-02-13 05:03:17
+=======
+#              Create: 2016-11-24 17:41:08
+#       Last Modified: 2016-11-24 17:41:25
+>>>>>>> 07f958ad2d0348003f35c1fc3ae9a5b399a40e21
 #
 #--------------------------------------------------
 
-import os,sys,time
 import commands
 import subprocess
 import os,logging

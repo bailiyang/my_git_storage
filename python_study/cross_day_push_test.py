@@ -4,8 +4,13 @@
 #
 #            Filename: cross_day_push_test.py
 #              Author: bailiyang@meizu.com
+<<<<<<< HEAD
 #              Create: 2017-02-13 05:03:22
 #       Last Modified: 2017-02-13 05:03:24
+=======
+#              Create: 2016-11-24 17:40:52
+#       Last Modified: 2016-11-24 17:41:01
+>>>>>>> 07f958ad2d0348003f35c1fc3ae9a5b399a40e21
 #
 #--------------------------------------------------
 

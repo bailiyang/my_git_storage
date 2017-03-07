@@ -4,8 +4,13 @@
 #
 #            Filename: push_test.py
 #              Author: bailiyang@meizu.com
+<<<<<<< HEAD
 #              Create: 2017-02-13 05:03:32
 #       Last Modified: 2017-02-13 05:03:32
+=======
+#              Create: 2016-11-24 17:42:17
+#       Last Modified: 2016-11-24 17:42:19
+>>>>>>> 07f958ad2d0348003f35c1fc3ae9a5b399a40e21
 #
 #--------------------------------------------------
 
