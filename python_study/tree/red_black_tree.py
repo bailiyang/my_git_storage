@@ -6,7 +6,7 @@ __metaclass__ = type
 #            Filename: red_black_tree.py
 #              Author: bailiyang@meizu.com
 #              Create: 2017-03-09 14:34:08
-#       Last Modified: 2017-03-09 18:15:48
+#       Last Modified: 2017-03-09 18:46:40
 #
 #--------------------------------------------------
 
@@ -18,7 +18,16 @@ class tree_node():
         self.Lchild = None
         self.Rchild = None
         self.father = None
+        self.uncle = None
         self.colour = colour
+
+    def set_uncle(self):
+        if self.father:
+            if self.father.father:
+                if self.father.father.Lchild == self.father:
+                    self.uncle = self.father.father.Rchild
+                if self.father.father.Rchild == self.father:
+                    self.uncle = self.father.father.Lchild
 
     def __str__(self):
         return str(self.data)
@@ -39,13 +48,15 @@ class red_black_tree():
         if node.Lchild == None and node_data < node.data:
             node.Lchild = tree_node(node_data)
             node.Lchild.father = node
-            self.balance_tree(node.Lchild)
+            node.Lchild.set_uncle()
+            #self.balance_tree(node.Lchild)
             return
 
         if node.Rchild == None and node_data > node.data:
             node.Rchild = tree_node(node_data)
             node.Rchild.father = node
-            self.balance_tree(node.Rchild)
+            node.Rchild.set_uncle()
+            #self.balance_tree(node.Rchild)
             return
         
         if node_data < node.data:
@@ -58,9 +69,19 @@ class red_black_tree():
             node.colour = tree_node.BLACK
             return
 
-        if node.father.colour == tree_str.BLACK:
+        if self.is_black(node.father):
             return
 
+
+    def is_black(self, node):
+        if node == None:
+            return False
+
+        if node.colour == tree_str.BLACK:
+            return True
+        else:
+            return False
+    
     def turn_left(self, node):
         #如果是跟节点，更换跟节点
         if node == self.tree:
@@ -94,7 +115,7 @@ class red_black_tree():
         if node is None:
             node = self.tree
 
-        print 'node data : %s, Lchild : %s, Rchild : %s, father : %s' %(node, node.Lchild, node.Rchild, node.father)
+        print 'node data : %s, Lchild : %s, Rchild : %s, father : %s, uncle is : %s' %(node, node.Lchild, node.Rchild, node.father, node.uncle)
         if node.Lchild:
             self.show(node.Lchild)
         if node.Rchild:
