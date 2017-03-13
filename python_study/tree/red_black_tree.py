@@ -6,11 +6,8 @@ __metaclass__ = type
 #            Filename: red_black_tree.py
 #              Author: bailiyang@meizu.com
 #              Create: 2017-03-09 14:34:08
-<<<<<<< HEAD
-#       Last Modified: 2017-03-10 18:03:00
-=======
+#       Last Modified: 2017-03-13 18:10:54
 #       Last Modified: 2017-03-11 05:52:56
->>>>>>> ddde5dc4d5179d524a35132713e1b768f2fa0a68
 #
 #--------------------------------------------------
 import pygraphviz

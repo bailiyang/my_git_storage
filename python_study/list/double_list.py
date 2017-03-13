@@ -6,7 +6,7 @@ __metaclass__ = type
 #            Filename: double_list.py
 #              Author: bailiyang@meizu.com
 #              Create: 2017-03-13 14:26:37
-#       Last Modified: 2017-03-13 18:03:27
+#       Last Modified: 2017-03-13 18:11:08
 #
 #--------------------------------------------------
 
