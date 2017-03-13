@@ -6,9 +6,14 @@ __metaclass__ = type
 #            Filename: red_black_tree.py
 #              Author: bailiyang@meizu.com
 #              Create: 2017-03-09 14:34:08
+<<<<<<< HEAD
 #       Last Modified: 2017-03-10 18:03:00
+=======
+#       Last Modified: 2017-03-11 05:52:56
+>>>>>>> ddde5dc4d5179d524a35132713e1b768f2fa0a68
 #
 #--------------------------------------------------
+import pygraphviz
 
 class tree_node():
     RED = 'RED'
@@ -36,7 +41,7 @@ class red_black_tree():
     def __init__(self):
         self.tree = None
         self.tree_str = []
-        self.deep = 0
+        self.step = 0
     
     def insert_node(self, node_data, node):
         if self.tree == None:
@@ -67,58 +72,77 @@ class red_black_tree():
             self.insert_node(node_data, node.Rchild)
 
     def balance_tree(self, node):
+        #print 'now node is %s Lchild %s Rchild %s uncle %s' %(node, node.Lchild, node.Rchild, node.get_uncle())
         if node == self.tree:
-            print 'tree root'
+            #print 'tree root'
             #如果是根节点，置为黑色
             node.colour = tree_node.BLACK
             return
 
         if self.is_black(node.father) == True:
-            print 'father is BLACK'
+            #print 'node %s father %s is BLACK' %(node, node.father)
             #如果父节点为黑色，则为正常
             return
 
         if self.is_black(node.father) == False and self.is_black(node.get_uncle()) == False:
-            print 'father and uncle is RED'
-            #如果父节点跟叔节点都是红色，则需要递归
-            #父、叔节点换为黑色
-            node.father.colour = tree_node.BLACK
-            node.get_uncle().colour = tree_node.BLACK
-
-            #祖父节点一定是黑色的，置为红色
+            #如果父节点与叔节点为红色
+            #print 'node %s father %s and uncle %s is RED' %(node, node.father, node.get_uncle())
+            node.father.colour = node.get_uncle().colour = tree_node.BLACK
             node.father.father.colour = tree_node.RED
-
-            #此时祖父节点一定是错误的，递归处理祖父节点
             self.balance_tree(node.father.father)
-        
+
         if self.is_black(node.father) == False and self.is_black(node.get_uncle()) == True:
-            print 'father is RED and uncle is BLACK'
-            #如果父节点为红色，叔节点为黑色
-            if node.father:
-                if node.father.Rchild == node:
-                    #如果当前节点是右儿子
-                    if node.father.father.Lchild == node.father:
-                        print '需要右旋的情况'
-                        #且父节点偏左，右旋可以将节点挂在叔节点（BLACK）上
-                        self.turn_right(node.father)
-                        self.balance_tree(node.father)
-                    else:
-                        #否则改变父节点、祖父节点颜色，递归
-                        node.father.colour = tree_node.BLACK
-                        node.father.father.colour = tree_node.RED
-                        self.balance_tree(node.father.father)
-                else:
-                    #如果当前节点是的左儿子                    
-                    if node.father.father.Rchild == node.father:
-                        print '需要左旋的情况'
-                        #且父节点偏右，左旋可以将节点“挂”到叔节点(BLACK)上
-                        self.turn_left(node.father)
-                        self.balance_tree(node.father)
-                    else:
-                        #否则就改变父节点、祖父节点颜色，并递归祖父节点
-                        node.father.colour = tree_node.BLACK
-                        node.father.father.colour = tree_node.RED
-                        self.balance_tree(node.father.father)
+            while True:
+                #父节点为红色，叔节点为黑
+                if node.father.father.Lchild == node.father and node.father.Lchild == node:
+                    #print 'node %s father %s is RED and uncle %s is BLACK, father and grandfather is Lchild' %(node, node.father, node.get_uncle())
+                    #如果父节点是左节点，祖父节点也是左节点
+                    self.case_1(node)
+                    break
+
+                if node.father.father.Rchild == node.father and node.father.Rchild == node:
+                    #print 'node %s father %s is RED and uncle %s is BLACK, father and grandfather is Rchild' %(node, node.father, node.get_uncle())
+                    #如果父节点是右节点，祖父节点也是右节点
+                    self.case_2(node)
+                    break
+
+                if node.father.father.Lchild == node.father and node.father.Rchild == node:
+                    #print 'node %s father %s is RED and uncle %s is BLACK, father is Rchild and grandfather is Lchild' %(node, node.father, node.get_uncle())
+                    #如果祖父节点是左节点，当前节点是右节点
+                    self.case_3(node)
+                    break
+
+                if node.father.father.Rchild == node.father and node.father.Lchild == node:
+                    #print 'node %s father %s is RED and uncle %s is BLACK, father is Lchild and grandfather is Rchild' %(node, node.father, node.get_uncle())
+                    #如果祖父节点是右节点，当前节点是左节点
+                    self.case_4(node)
+                    break
+
+    def case_1(self, node):
+        #靠左外侧插入的情况
+        self.turn_right(node.father)
+        node.father.colour = tree_node.BLACK
+        node.father.Rchild.colour = tree_node.RED
+
+    def case_2(self, node):
+        #靠右外侧插入的情况
+        self.turn_left(node.father)
+        node.father.colour = tree_node.BLACK
+        node.father.Lchild.colour = tree_node.RED
+
+    def case_3(self, node):
+        #父节点是左节点，当前节点是右节点
+        self.turn_left(node)
+        self.turn_right(node)
+        node.colour = tree_node.BLACK
+        node.Rchild.colour = tree_node.RED
+
+    def case_4(self, node):
+        #父节点是右节点，当前节点是左节点
+        self.turn_right(node)
+        self.turn_left(node)
+        node.colour = tree_node.BLACK
+        node.Lchild.colour = tree_node.RED
 
     def is_black(self, node):
         if node is None:
@@ -131,8 +155,10 @@ class red_black_tree():
     
     def turn_left(self, node):
         #父亲的右儿子指向左儿子，左儿子新父亲为节点的父亲
+        #print 'turn left node %s' %(node)
         node.father.Rchild = node.Lchild
-        node.Lchild.father = node.father
+        if node.Lchild:
+            node.Lchild.father = node.father
         node.Lchild = node.father
 
         #父亲指向祖父
@@ -151,11 +177,14 @@ class red_black_tree():
                 #父节点是右节点
                 node.father.father.Rchild = node
             node.father = node.father.father
+            node.Lchild.father = node
             
     def turn_right(self, node):
         #父亲的左儿子指向右儿子，右儿子新父亲为节点的父亲
+        #print 'turn right node %s' %(node)
         node.father.Lchild = node.Rchild
-        node.Rchild.father = node.father
+        if node.Rchild:
+            node.Rchild.father = node.father
         node.Rchild = node.father
 
         #父亲指向祖父
@@ -174,67 +203,78 @@ class red_black_tree():
                 #父节点是右节点
                 node.father.father.Rchild = node
             node.father = node.father.father
+            node.Rchild.father = node
 
     def create_tree(self, tree_str):
         for data in tree_str:
-            print 'add now node %s' %(data)
             self.insert_node(data, self.tree)
-            self.show()
 
-    def show(self, node = None):
+    def show(self):
+        self.print_tree()
+        self.printer.write('./foo.dot')
+        self.printer.layout('dot')
+        self.printer.draw('./foo_%s.jpg' %(self.step))
+        self.step += 1
+
+    def print_tree(self, node = None):
         if node is None:
+            #初始化绘图
+            import pygraphviz
+            self.printer = pygraphviz.AGraph(directed = True, strict = False)
+            #修改属性
+            self.printer.node_attr['shape'] = 'circle'
+            self.printer.node_attr['color'] = 'red'
+            self.printer.node_attr['fontcolor'] = 'white' 
+            self.printer.node_attr['style'] = 'filled'
+
+            #绘制根节点
             node = self.tree
+            self.printer.add_node(node.data, color = node.colour)
+            
+        if node.Lchild or node.Rchild:
+            if node.Lchild:
+                #如果左儿子存在，绘制一个左儿子节点
+                self.printer.add_node(node.Lchild.data, color = node.Lchild.colour)
+                #绘制一个边
+                self.printer.add_edge(node.data, node.Lchild.data, label = str(node.Lchild.father))
+                #递归左儿子
+                self.print_tree(node.Lchild)
+            else:
+                #如果不存在，绘制一个空节点
+                self.printer.add_node('Lchild ' + str(node.data), style = 'invis')
+                self.printer.add_edge(node.data, 'Lchild ' + str(node.data), style = 'invis')
 
-        print 'node data : %s, colour is : %s, Lchild : %s, Rchild : %s, father : %s' %(node, node.colour, node.Lchild, node.Rchild, node.father)
-        if node.colour == tree_node.RED:
-            assert(self.is_black(node.Lchild))
-            assert(self.is_black(node.Rchild))
-        if node.Lchild:
-            self.show(node.Lchild)
-        if node.Rchild:
-            self.show(node.Rchild)
-
-    def get_deep(self, level = 0, node = None):
-        if node is None:
-            node = self.tree
-
-        self.deep = max(self.deep, level)
+            if node.Rchild:
+                #如果右儿子存在，绘制一个右儿子节点
+                self.printer.add_node(node.Rchild.data, color = node.Rchild.colour)
+                #绘制一个边
+                self.printer.add_edge(node.data, node.Rchild.data, label = str(node.Rchild.father))
+                #递归右儿子
+                self.print_tree(node.Rchild)
+            else:
+                #如果不存在，绘制一个空节点
+                self.printer.add_node('Rchild ' + str(node.data), style = 'invis')
+                self.printer.add_edge(node.data, 'Rchild ' + str(node.data), style = 'invis')
         
-        if node.Lchild:
-            self.get_deep(level + 1, node.Lchild)
-        if node.Rchild:
-            self.get_deep(level + 1, node.Rchild)
-
-    def print_tree(self, level = 0, node = None):
+    def get_black_deep(self, node = None, deep = 1):
         if node is None:
-            self.get_deep()
-            for i in range(self.deep + 2):
-                self.tree_str.append('')
-            print self.deep
-
             node = self.tree
-            self.tree_str[level] += (str(node))
-        else:
-            print 'level : %s, node %s' %(level, node)
-            if node.father.Rchild == node:
-                self.tree_str[level] += ' ' * 3 
-            self.tree_str[level] += str(node)
-            for i in range(level):
-                self.tree_str[i] = ' ' + self.tree_str[i]
- 
+            self.deep = 1
+
+        self.deep = max(self.deep, deep)
         if node.Lchild:
-            self.print_tree(level + 1, node.Lchild)
-        else:
-            self.tree_str[level + 1] += ' '
-
+            self.get_black_deep(node.Lchild, deep + 1)
         if node.Rchild:
-            self.print_tree(level + 1, node.Rchild)
-        else:
-            self.tree_str[level + 1] += ' ' * 3
+            self.get_black_deep(node.Rchild, deep + 1)
 
-func = red_black_tree()
-func.create_tree([4,2,1,0,3,5,9,8])
-#func.create_tree([2,1,3,5])
-func.print_tree()
-for i in func.tree_str:
-    print i
+if __name__ == "__main__":
+    import random
+    func = red_black_tree()
+    tree = []
+    n = 1000000
+    for i in range(n):
+        tree.append(random.randint(1, n))
+    func.create_tree(tree)
+    #func.create_tree([2,1,3,5])
+    func.get_black_deep()
+    print 'deep is %s' %(func.deep)

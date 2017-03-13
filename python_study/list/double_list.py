@@ -6,7 +6,7 @@ __metaclass__ = type
 #            Filename: double_list.py
 #              Author: bailiyang@meizu.com
 #              Create: 2017-03-13 14:26:37
-#       Last Modified: 2017-03-13 17:53:15
+#       Last Modified: 2017-03-13 18:03:27
 #
 #--------------------------------------------------
 
@@ -75,8 +75,8 @@ class double_list():
         for data in list_str:
             print 'add node %s' %(data)
             self.increase_node(self.root, data)
-        self.show_list_forward()
-        self.show_list_backward()
+            self.show_list_forward()
+            self.show_list_backward()
 
     def show_list_forward(self, node = None):
         if node is None:
@@ -84,12 +84,12 @@ class double_list():
             self.list_str_forword = str(self.root)
         else:
             #print 'node %s , head %s, tail %s' %(node, node.head, node.tail)
-            self.list_str_forword += '-->' + str(node.data)
+            self.list_str_forword += ' --> ' + str(node.data)
 
         if not node.tail == self.root or node.tail is None:
             self.show_list_forward(node.tail)
         else:
-            print 'forward list is ' + self.list_str_forword
+            print 'forward list  ' + self.list_str_forword
 
     def show_list_backward(self, node = None):
         if node is None:
@@ -97,12 +97,12 @@ class double_list():
             self.list_str_backward = str(self.root.head)
         else:
             #print 'node %s , head %s, tail %s' %(node, node.head, node.tail)
-            self.list_str_backward += '-->' + str(node.data)
+            self.list_str_backward += ' --> ' + str(node.data)
 
         if not node == self.root or node is None:
             self.show_list_backward(node.head)
         else:
-            print 'backward list is ' + self.list_str_backward
+            print 'backward list ' + self.list_str_backward
 
 func = double_list()
 import random
