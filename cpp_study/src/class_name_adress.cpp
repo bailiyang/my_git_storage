@@ -11,6 +11,6 @@ int main(int argc, char *argv[])
     if ( std::cout << "name and adress is \n" << std::endl ){
         st.print(cout, st);
     }       //使用print成员函数直接输出
-    std::cout << "\n\n" << st.check() << std::endl;     //使用check成员函数输出
+    std::cout << "\n" << st.check() << std::endl;     //使用check成员函数输出
     return 0;
 }

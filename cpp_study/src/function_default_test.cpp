@@ -11,6 +11,6 @@ int main(int argc, char *argv[])
 {
     std::cout << make_plural("string") << std::endl;        //使用默认值初始化形参b
     std::cout << make_plural("a","b") << std::endl;     //使用实参初始化形参a与b
-    std::cout << make_plural("e"," ") << std::endl; 
+    std::cout << make_plural("e") << std::endl; 
     return 0;
 }
