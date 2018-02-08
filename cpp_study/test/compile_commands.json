@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/build/study/cpp_study/test/build",
+  "command": "g++    -I/build/push/push/proto -I/build/push/stream/proto  -g -O3 -std=c++0x -Wall -Werror   -o CMakeFiles/test.dir/src/test.cpp.o -c /build/study/cpp_study/test/src/test.cpp",
+  "file": "/build/study/cpp_study/test/src/test.cpp"
+}
+]

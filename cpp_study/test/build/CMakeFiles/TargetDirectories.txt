@@ -1,0 +1,10 @@
+/build/study/cpp_study/test/build/CMakeFiles/rebuild_cache.dir
+/build/study/cpp_study/test/build/CMakeFiles/package.dir
+/build/study/cpp_study/test/build/CMakeFiles/list_install_components.dir
+/build/study/cpp_study/test/build/CMakeFiles/install.dir
+/build/study/cpp_study/test/build/CMakeFiles/edit_cache.dir
+/build/study/cpp_study/test/build/CMakeFiles/kiev_test.dir
+/build/study/cpp_study/test/build/CMakeFiles/package_source.dir
+/build/study/cpp_study/test/build/CMakeFiles/hello.dir
+/build/study/cpp_study/test/build/CMakeFiles/install/strip.dir
+/build/study/cpp_study/test/build/CMakeFiles/install/local.dir

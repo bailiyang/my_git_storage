@@ -1,0 +1,1 @@
+g++   -g -O3 -std=c++0x -Wall -Werror   CMakeFiles/test.dir/src/test.cpp.o  -o test  -L/build/push/push/proto  -L/build/push/stream/proto -rdynamic -lst -lmetaq -lkiev -lmq_push_data_report -lpush_data_report -lprotobuf -lsnappy -luuid -pthread -lcurl -lcares -lssl -lcrypto -lz -ldl -static -Wl,-rpath,/build/push/push/proto:/build/push/stream/proto 
