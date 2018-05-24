@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,6 +17,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
+
+const dbName string = "meizu-image"
 
 type image struct {
 	ID         bson.ObjectId `bson:"_id"`
@@ -42,6 +45,10 @@ type ucDel struct {
 func getURLFromUID(uid string) string {
 	//根据uid获取URL
 	tempUID := uid
+	// if len(tempUID)%2 == 1 {
+	// 	tempUID += "0"
+	// }
+
 	for len(tempUID) < 10 {
 		tempUID += "0"
 	}
@@ -80,6 +87,7 @@ func getUIDFromFile(fileName string) ([]string, error) {
 		glog.Errorf("open file %s faild", fileName)
 		return []string{}, err
 	}
+	glog.Infof("open file %s success, try to read uid", fileName)
 
 	var uidList []string
 	reader := bufio.NewReader(file)
@@ -94,31 +102,31 @@ func getUIDFromFile(fileName string) ([]string, error) {
 			uidList = append(uidList, strings.Split(line, "\n")[0])
 		}
 	}
+	glog.Infof("read uid success")
 
 	return uidList, nil
 }
 
 func (p ucDel) getImageInfo(uid string) (image, error) {
 	id := getImageID(uid)
+	url := getURLFromUID(uid)
 
 	var imageInfoList []image
-	col := p.mongoClient.DB("meizu-image").C("image")
+	col := p.mongoClient.DB(dbName).C("image")
 	err := col.FindId(id).All(&imageInfoList)
 	if err != nil {
-		glog.Errorf("get uid %s id %s image info fail", uid, id)
+		glog.Warningf("get uid %s id %s image info fail", uid, id)
 		return image{}, err
 	}
 
 	//根据id获取，有且仅有一个
 	if len(imageInfoList) > 1 {
-		// glog.Errorf("uid %s, id %s image info more than 1", uid, id)
-		return image{}, fmt.Errorf("uid %s id %s image info more than 1", uid, id)
+		return image{}, fmt.Errorf("uid %s url %s id %s image info more than 1", uid, url, id)
 	}
 
 	//没有数据的情况
 	if len(imageInfoList) < 1 {
-		// glog.Errorf("uid %s, id %s not found image info", uid, id)
-		return image{}, fmt.Errorf("uid %s id %s not found image info", uid, id)
+		return image{}, fmt.Errorf("uid %s url %s id %s not found image info", uid, url, id)
 	}
 	imageInfo := imageInfoList[0]
 
@@ -169,24 +177,31 @@ func (p ucDel) deleteImage(imageInfo image) error {
 
 func (p ucDel) deleteFdfsImage(imageInfo image) error {
 	var err error
-	failNumber := 0
 	for _, v := range imageInfo.Files {
-		err := p.fdfsClient.DeleteFile(getFdfsPath(v.Path))
+		path := getFdfsPath(v.Path)
+		err = p.fdfsClient.DeleteFile(path)
 		if err != nil {
-			glog.Errorf("delete uid %s path %s model %s image from fdfs fail", getUIDFromURL(imageInfo.URL), v.Path, v.Model)
-			failNumber++
-			continue
+			glog.Errorf("delete uid %s path %s model %s image from fdfs fail", getUIDFromURL(imageInfo.URL), path, v.Model)
+			glog.Errorln(err)
+			return err
 		}
-		glog.Infof("delete uid %s path %s model %s image from fdfs success", getUIDFromURL(imageInfo.URL), v.Path, v.Model)
+		glog.Infof("delete uid %s path %s model %s image from fdfs success", getUIDFromURL(imageInfo.URL), path, v.Model)
 	}
-	if failNumber > 0 {
+	return nil
+}
+
+func (p ucDel) deleteFdfsImageByStr(path string) error {
+	err := p.fdfsClient.DeleteFile(path)
+	if err != nil {
+		glog.Errorf("delete path %s image from fdfs fail", path)
+		glog.Errorln(err)
 		return err
 	}
 	return nil
 }
 
 func (p ucDel) deleteMongoImage(imageInfo image) error {
-	col := p.mongoClient.DB("meizu-image").C("image")
+	col := p.mongoClient.DB(dbName).C("image")
 	uid := getUIDFromURL(imageInfo.URL)
 	id := getImageID(uid)
 	err := col.RemoveId(id)
@@ -209,8 +224,8 @@ func main() {
 		return
 	}
 
+	// mgoClient, err := mgo.Dial("10.3.172.97:28030,10.3.172.99:28030")
 	mgoClient, err := mgo.Dial("172.16.177.147:21001")
-	// mgoClient, err := mgo.Dial("localhost")
 	defer mgoClient.Close()
 	if err != nil {
 		glog.Fatal(err)
@@ -223,17 +238,22 @@ func main() {
 		return
 	}
 	ucDeler := ucDel{mgoClient, fdfsClient}
-
 	for _, uid := range uidList {
+		uidNum, err := strconv.Atoi(uid)
+		if uidNum < 600000 || uidNum > 150100705 {
+			glog.Warningf("uid %s not between 600000 and 150100705", uid)
+			continue
+		}
+
 		imageInfo, err := ucDeler.getImageInfo(uid)
 		if err != nil {
-			glog.Error(err)
+			glog.Warningln(err)
 			continue
 		}
 		err = ucDeler.downloadImage(imageInfo)
 		// err = ucDeler.deleteImage(imageInfo)
 		if err != nil {
-			glog.Error(err)
+			glog.Warningln(err)
 			continue
 		}
 	}

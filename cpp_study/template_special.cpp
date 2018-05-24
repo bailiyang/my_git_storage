@@ -6,9 +6,27 @@
 #include <string>
 #include <cstring>
 #include <unordered_map>
-#include "test.h"
 
-const int Cls::Size;
+template <typename T>
+void print(const T s)
+{
+    printf("use T\n");
+    std::cout << s << std::endl;
+}
+
+template <typename T>
+void print(T *s)
+{
+    printf("use T*\n");
+    std::cout << *s << std::endl;
+}
+
+template <>
+void print(const char *s)
+{
+    printf("use char *\n");
+    std::cout << std::string(s) << std::endl;
+}
 
 int main(int argc, char *argv[])
 {
@@ -16,5 +34,4 @@ int main(int argc, char *argv[])
     print(std::string("hello world"));
     print(st);
     print("123");
-    print(Cls::Size);
 }
