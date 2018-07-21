@@ -36,7 +36,8 @@ map <leader>f :MRU<CR>
 """"""""""""""""""""""""""""""
 let g:ctrlp_working_path_mode = 0
 
-let g:ctrlp_map = '<F2>'
+"一个打开近期文件列表的功能，暂时不需要
+" let g:ctrlp_map = '<F2>'
 map <leader>j :CtrlP<cr>
 map <c-b> :CtrlPBuffer<cr>
 
@@ -72,10 +73,26 @@ let g:NERDTreeWinPos = "left"
 let NERDTreeShowHidden=0
 let NERDTreeIgnore = ['\.pyc$', '__pycache__']
 let g:NERDTreeWinSize=35
-map <F3> :NERDTreeToggle<cr>
-"map <leader>nb :NERDTreeFromBookmark<Space>
-"map <leader>nf :NERDTreeFind<cr>
 
+" 最后一个窗口是nerdtree时，关闭
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+"检查是否已经打开tree
+function! IsNERDTreeOpen()        
+  return exists("t:NERDTreeBufName") && (bufwinnr(t:NERDTreeBufName) != -1)
+endfunction
+
+"如果已经打开，那么关闭，如果没有打开，查找当前文件目录为根目录
+function! SmartOpenTree()
+  if !IsNERDTreeOpen()
+    NERDTreeFind
+  else
+    NERDTreeToggle
+  endif
+endfunction
+
+"实现F3一键开关功能
+map <F3> :call SmartOpenTree()<cr>
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => vim-multiple-cursors

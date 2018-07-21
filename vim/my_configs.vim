@@ -1,5 +1,4 @@
 "--------------------Plugin-------------------"
-
 set nocompatible
 filetype off
 
@@ -34,7 +33,7 @@ autocmd BufNewFile,BufRead *.go map <F5> :GoRun<CR>
 "输入完毕后，自动关闭顶端草稿提示
 let g:ycm_autoclose_preview_window_after_completion = 1
 "点击回车（默认为ctrl+y），强制关闭下拉提示菜单
-let g:ycm_key_list_stop_completion = ['<enter>']
+let g:ycm_key_list_stop_completion = ['<tab>']
 "触发全局函数补全
 let g:ycm_key_invoke_completion = '<c-y>'
 
@@ -42,7 +41,7 @@ let g:ycm_key_invoke_completion = '<c-y>'
 let g:ycm_confirm_extra_conf  = 1
 let g:ycm_extra_conf_globlist  = ['/build/push/kiev/src/*', '!~/*']
 "跳转
-nnoremap <c-f> :YcmCompleter GoTo<CR>
+nnoremap <c-g> :YcmCompleter GoTo<CR>
 "显示实际类型
 nnoremap <c-t> :YcmCompleter GetTypeImprecise<CR>
 "自动修复语义
@@ -58,6 +57,11 @@ let g:UltiSnipsJumpForwardTrigger="<C-Right>"
 let g:UltiSnipsJumpBackwardTrigger="<C-Left>"
 
 "let g:UltiSnipsEditSplit="vertical"
+"---------------------Ack.vim------------------"
+"没有参数，默认查找当前光标下词组
+map <F2> :Ack!<CR>
 "---------------------other------------------"
-set mouse=a 
 set number
+"ale插件有bug，必须使用这个值才能正常使用鼠标
+set ttymouse=xterm
+set mouse=a 
