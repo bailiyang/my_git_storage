@@ -1,29 +1,26 @@
 #!/bin/bash
 command=$1
 
-IsBuildFileIndex(){
+file_index=`pwd`
+#判断是否已经在src目录下
+if [ "${file_index:0-3}" == "src" ]
+then
+    cd ../
     file_index=`pwd`
-    #判断是否已经在src目录下
-    if [ "${file_index:0-3}" == "src" ]
-    then
-        cd ../
-        file_index=`pwd`
-    fi
+fi
 
-    #判断是否已经在build目录下
-    if [ "${file_index:0-5}" != "build" ]
+#判断是否已经在build目录下
+if [ "${file_index:0-5}" != "build" ]
+then
+    #判断当前目录是否存在build目录
+    if [ -d "${file_index}/build" ]
     then
-        #判断当前目录是否存在build目录
-        if [ ! -d "${file_index}/build" ]
-        then
-            #不存在，创建一个新的
-            mkdir build
-        fi
-        cd build
+        #已经存在，删除旧的，再创建新的
+        rm -rf ./build
     fi
-}
-
-IsBuildFileIndex
+    mkdir build
+    cd build
+fi
 
 if [ "$command" = "help" -o "$command" = "h" -o "$command" = "-h" -o "$command" = "--help" ]
 then
