@@ -3,6 +3,7 @@
 echo "apt更新"
 sudo apt-get update
 sudo apt-get -y upgrade
+read -p "按任意键继续" var
 
 #c++编译环境
 echo "C++编译环境安装"
@@ -14,17 +15,20 @@ apt install -y gcc-4.8 g++-4.8
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 25
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+read -p "按任意键继续" var
 
 #go相关环境
 echo "go1.10.3环境"
 apt -y remove golang-go
-wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gzi /opt
+wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+mv ./go1.10.3.linux-amd64.tar.gz /opt
 tar -C /usr/local -xzf /opt/go1.10.3.linux-amd64.tar.gz
 #go env
 mkdir -p /build/go_path
 echo "export GOROOT=/usr/local/go" >> ~/.bashrc
 echo "export GOPATH=/build/go_path" >> ~/.bashrc
 echo "export PATH=$PATH:$GOPATH:/usr/local/go/bin" >> ~/.bashrc
+read -p "按任意键继续" var
 
 #python编译环境
 echo "python3 与 python2.7"
@@ -33,8 +37,9 @@ apt install -y python3-dev python2.7-dev
 #设置python版本切换
 update-alternatives --install /usr/bin/python python /usr/bin/python2.7 50
 update-alternatives --install /usr/bin/python python /usr/bin/python3 100
+read -p "按任意键继续" var
 
-#vim相关环境
+# vim相关环境
 echo "vim相关"
 apt install -y vim
 apt install -y ack-grep
@@ -54,15 +59,18 @@ cp /build/study/vim/*.vim ~/.vim_runtime/vimrcs
 rm --force ~/.vim_runtime/vimrcs/my_configs.vim
 #用vundle安装其他插件
 vim +PluginInstall -c quitall
+read -p "按任意键继续" var
 
 #zsh相关
 echo “安装zsh”
-apt install zsh
+apt install -y zsh
 sudo chsh -s $(which zsh)
 sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+sed -i -s s/robbyrussell/agnoster/g ~/.zshrc
+read -p "按任意键继续" var
 
 #autojump
-apt install autojump
+apt install -y autojump
 echo ". /usr/share/autojump/autojump.sh" >> ~/.zshrc
 echo "export LD_LIBRARY_PATH=/usr/local/lib/" >> ~/.zshrc
 echo "alias cman=\'man -M /usr/share/man/zh_CN\'" >> ~/.zshrc
