@@ -1,8 +1,8 @@
 !#/bin/bash
 #更新apt
 echo "apt更新"
-sudo apt-get update
-sudo apt-get -y upgrade
+apt-get update
+apt-get -y upgrade
 read -p "按任意键继续" var
 
 #c++编译环境
@@ -17,14 +17,19 @@ update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 10
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 25
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 100
 update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 10
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 25
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 100
+update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 read -p "按任意键继续" var
 
 #go相关环境
 echo "go1.10.3环境"
-apt -y remove golang-go
-wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
-mv ./go1.10.3.linux-amd64.tar.gz /opt
-tar -C /usr/local -xzf /opt/go1.10.3.linux-amd64.tar.gz
+apt install -y golong-go
+# apt -y remove golang-go
+# wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz
+# mv ./go1.10.3.linux-amd64.tar.gz /opt
+# tar -C /usr/local -xzf /opt/go1.10.3.linux-amd64.tar.gz
 #go env
 mkdir -p /build/go_path
 echo "export GOROOT=/usr/local/go" >> ~/.bashrc
@@ -35,7 +40,8 @@ read -p "按任意键继续" var
 #python编译环境
 echo "python3 与 python2.7"
 apt install -y python3 python2.7
-apt install -y python3-dev python2.7-dev
+apt install -y python3-dev python3-dev
+apt install -y python-pip python3-pip
 #设置python版本切换
 update-alternatives --install /usr/bin/python python /usr/bin/python2.7 50
 update-alternatives --install /usr/bin/python python /usr/bin/python3 100
@@ -52,7 +58,8 @@ sh ~/.vim_runtime/install_awesome_vimrc.sh
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 #YouCompleteMe
 git clone https://github.com/Valloric/YouCompleteMe.git ~/.vim/bundle/YouCompleteMe
-python3 ~/.vim/bundle/YouCompleteMe/install.py --clang-completer --go-completer
+cd ~/.vim/bundle/YouCompleteMe && git submodule update --init --recursive
+python ~/.vim/bundle/YouCompleteMe/install.py --clang-completer --go-completer
 #study
 mkdir -p /build/study
 git clone https://github.com/bailiyang/study.git /build/study
@@ -67,16 +74,21 @@ read -p "按任意键继续" var
 #zsh相关
 echo “安装zsh”
 apt install -y zsh
-sudo chsh -s $(which zsh)
+chsh -s $(which zsh)
 sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
 sed -i -s s/robbyrussell/agnoster/g ~/.zshrc
+read -p "按任意键继续" var
+
+#设置语言为UTF-8
+apt install locales
+locale-gen en_US.UTF-8
+update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 read -p "按任意键继续" var
 
 #autojump
 apt install -y autojump
 echo ". /usr/share/autojump/autojump.sh" >> ~/.zshrc
-echo "export LD_LIBRARY_PATH=/usr/local/lib/" >> ~/.zshrc
-echo "alias cman=\'man -M /usr/share/man/zh_CN\'" >> ~/.zshrc
 echo "export GOPATH=\"/build/go_path\"" >> ~/.zshrc
 echo "export LC_CTYPE=en_US.UTF-8" >> ~/.zshrc
 echo "export LC_ALL=en_US.UTF-8" >> ~/.zshrc
+echo "export export TERM=xterm-256color" >> ~/.zshrc

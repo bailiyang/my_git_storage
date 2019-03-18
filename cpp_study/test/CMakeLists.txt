@@ -8,6 +8,5 @@ set(TARGET kiev_test)
 set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_FLAGS "-g -O3 -std=c++0x -Wall -Werror")
 
-AUX_SOURCE_DIRECTORY("${PROJECT_SOURCE_DIR}/src" SRC_LIST)
-add_executable(${TARGET} ${SRC_LIST})
-target_link_libraries(${TARGET} -lsnappy -luuid -pthread -lcurl -lssl -lcrypto -lz -ldl -static)
+add_executable(kiev_test src/test.cpp)
+target_link_libraries(kiev_test -lsnappy -lopenssl -luuid -pthread -lssl -lcrypto -lz -ldl -static)

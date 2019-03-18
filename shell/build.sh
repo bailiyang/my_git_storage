@@ -9,6 +9,13 @@ then
     file_index=`pwd`
 fi
 
+#判断是否已经在bin目录下
+if [ "${file_index:0-3}" == "bin" ]
+then
+    cd ../
+    file_index=`pwd`
+fi
+
 #判断是否已经在build目录下
 if [ "${file_index:0-5}" != "build" ]
 then
@@ -35,7 +42,8 @@ fi
 if [ "$command" = "ycm" ]
 then
     cmake ../ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-    mv ./compile_commands.json ../
+    compdb -p . list > tmp_compile_commands.json
+    mv ./tmp_compile_commands.json ../compile_commands.json
     echo "生成compile_commands.json完毕"
     exit
 fi
@@ -43,7 +51,7 @@ fi
 if [ ! -d "$command" ]
 then
     cmake ../
-    make
+    make -j2
     exit
 fi
 

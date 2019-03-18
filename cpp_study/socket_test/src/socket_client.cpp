@@ -22,17 +22,15 @@ class Client
             }
             
             struct sockaddr_in addr;
+            bzero(&addr, sizeof(sockaddr_in));
             addr.sin_family = AF_INET;
-            int addr_num = inet_addr("127.0.0.1");
-            if (addr_num < 0)
+            addr.sin_port = htons(22);
+            if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) < 0)
             {
                 printf("handle inet_addr failed, errno %d\n", errno);
                 return -1;
             }
-            addr.sin_addr.s_addr = addr_num;
             printf("ip %s\n", inet_ntoa(addr.sin_addr));
-            addr.sin_port = htons(8888);
-            bzero(&addr.sin_zero, sizeof(addr.sin_zero));
 
             if (connect(socket_fd, (sockaddr *)&addr, sizeof(struct sockaddr)) < 0)
             {

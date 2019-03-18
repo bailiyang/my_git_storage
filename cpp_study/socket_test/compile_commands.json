@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/build/study/cpp_study/socket_test/build",
+  "command": "g++    -g -O3 -std=c++0x -Wall -Werror   -o CMakeFiles/kiev_test.dir/src/socket_client.cpp.o -c /build/study/cpp_study/socket_test/src/socket_client.cpp",
+  "file": "/build/study/cpp_study/socket_test/src/socket_client.cpp"
+},
+{
+  "directory": "/build/study/cpp_study/socket_test/build",
+  "command": "g++    -g -O3 -std=c++0x -Wall -Werror   -o CMakeFiles/kiev_test.dir/src/socket_server.cpp.o -c /build/study/cpp_study/socket_test/src/socket_server.cpp",
+  "file": "/build/study/cpp_study/socket_test/src/socket_server.cpp"
+}
+]
