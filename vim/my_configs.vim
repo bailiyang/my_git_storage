@@ -85,9 +85,41 @@ let g:ack_use_cword_for_empty_search = 1
 autocmd Filetype json let g:indentLine_enabled = 0
 
 "---------------------ClangFormat-----------------"
-let g:clang_format#code_style = "google"
+" 在c文件中自动格式化可能导致编译失败，因此关闭这个功能
 let g:clang_format#auto_format = 1
+autocmd BufNewFile,BufRead *.c let g:clang_format#auto_format = 0
+let g:clang_format#style_options = {
+            \ "BasedOnStyle": "WebKit", 
+            \ "ColumnLimit": 100, 
+            \ "AllowAllParametersOfDeclarationOnNextLine": "false",
+            \ "AlignAfterOpenBracket" : "Align",
+            \ "BreakBeforeBinaryOperators": "None",
+            \ "BreakBeforeBraces": "Attach", 
+            \ "TabWidth": 4,    
+            \ "IndentCaseLabels": "true", 
+            \ "NamespaceIndentation": "None", 
+            \ "FixNamespaceComments": "true", 
+            \ "KeepEmptyLinesAtTheStartOfBlocks": "false", 
+            \ "MaxEmptyLinesToKeep": 2, 
+            \ "BinPackParameters": "false", 
+            \ "AlwaysBreakTemplateDeclarations": "true", 
+            \ "AlignConsecutiveAssignments": "true", 
+            \ "AlignTrailingComments": "true", 
+            \ "AllowShortFunctionsOnASingleLine": "true", 
+            \ "AllowShortIfStatementsOnASingleLine": "true", 
+            \ "AllowShortLoopsOnASingleLine": "true", 
+            \ "ConstructorInitializerAllOnOneLineOrOnePerLine": "true", 
+            \ "Cpp11BracedListStyle": "true", 
+            \ "Standard": "Auto", 
+            \ "SortIncludes": "false", 
+            \ "ReflowComments": "false", 
+            \ "PenaltyReturnTypeOnItsOwnLine": 10000, 
+            \ "PenaltyBreakBeforeFirstCallParameter": 1000, 
+            \ "PenaltyExcessCharacter": 10}
+            
 " let g:clang_format#auto_format_on_insert_leave = 1
+" 在python保存时自动格式化
+autocmd BufWritePost *.py silent exec "!autopep8 --in-place --aggressive --aggressive %:p"
 
 "---------------------NerdTree--------------------"
 let g:NERDTreeWinPos = "left"
@@ -115,12 +147,13 @@ map <F3> :call SmartOpenTree()<cr>
 set autoread
 autocmd BufNewFile,BufRead *.cpp,*.h,*.hpp map <F6> :!bigo-format %:p<CR>
 autocmd BufNewFile,BufRead *.c,*.proto,*.xml map <F6> :!clang-format -i %:p<CR>
+autocmd BufNewFile,BufRead *.py map <F6> :!autopep8 --in-place --aggressive --aggressive %:p<CR>
 
 "---------------------other------------------"
 set number
 "ale插件有bug，必须使用这个值才能正常使用鼠标
 set mouse=a 
-let g:ycm_global_ycm_extra_conf = '/Users/bailiyang/.ycm_extra_conf.py'
+let g:ycm_global_ycm_extra_conf = '/home/bailiyang/.ycm_extra_conf.py'
 " set fileencodings=ucs-bom,utf-8,utf-16,gbk,big5,gb18030,latin1
 
 "修复ycm报错
@@ -182,7 +215,7 @@ func! SetTitle()
 
   "处理python
   elseif &filetype == 'python'
-		call setline(1,"#!/usr/bin/python") 
+		call setline(1,"#!/usr/bin/python3") 
 		call setline(2,"#-*- coding:utf-8 -*-")
 		call SetComment_sh()
 
