@@ -86,7 +86,7 @@ autocmd Filetype json let g:indentLine_enabled = 0
 
 "---------------------ClangFormat-----------------"
 " 在c文件中自动格式化可能导致编译失败，因此关闭这个功能
-let g:clang_format#auto_format = 1
+let g:clang_format#auto_format = 0
 autocmd BufNewFile,BufRead *.c let g:clang_format#auto_format = 0
 let g:clang_format#style_options = {
             \ "BasedOnStyle": "WebKit", 
@@ -150,6 +150,8 @@ autocmd BufNewFile,BufRead *.c,*.proto,*.xml map <F6> :!clang-format -i %:p<CR>
 autocmd BufNewFile,BufRead *.py map <F6> :!autopep8 --in-place --aggressive --aggressive %:p<CR>
 
 "---------------------other------------------"
+" 在windows终端中，需要用sgr模式才能再分屏时候使用鼠标
+set ttymouse=sgr
 set number
 "ale插件有bug，必须使用这个值才能正常使用鼠标
 set mouse=a 
